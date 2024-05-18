@@ -1,0 +1,18 @@
+logging:
+  level:
+    root: INFO
+
+server.port: 8135
+
+spring:
+  application:
+    name: db-project
+  datasource:
+    url: jdbc:postgresql://localhost:5432/itmo
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    url: jdbc:postgresql://localhost:5432/itmo
+    user: postgres
+    password: postgres

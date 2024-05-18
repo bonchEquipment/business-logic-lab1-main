@@ -1,0 +1,19 @@
+logging:
+  level:
+    root: INFO
+
+server:
+  port: 4003
+
+spring:
+  application:
+    name: db-project
+  datasource:
+    url: jdbc:postgresql://localhost:5432/studs
+    username: s308414
+    password: bZfGXChzy7DemZrE
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    url: jdbc:postgresql://localhost:5432/studs
+    user: s308414
+    password: bZfGXChzy7DemZrE
