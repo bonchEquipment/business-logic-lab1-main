@@ -10,5 +10,7 @@ public class HeaderConstant {
     public static final String SUBSCRIBER_ID = "SUBSCRIBER_ID";
     public static final String ADMIN_ID = "ADMIN_ID";
     public static final String TEXT = "TEXT";
+    public static final String SUBSCRIPTION_TYPE = "SUBSCRIPTION_TYPE";
+
 
 }

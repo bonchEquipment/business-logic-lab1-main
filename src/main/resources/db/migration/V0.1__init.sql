@@ -38,3 +38,29 @@ create table if not exists video
     content_mp4    bytea not null
 );
 
+create table if not exists rutube_account
+(
+    id      uuid primary key,
+    user_id uuid,
+    value   decimal check (value >= 0)
+);
+
+create table if not exists bank_account
+(
+    id      uuid primary key,
+    user_id uuid,
+    value   decimal check (value >= 0)
+);
+
+create table if not exists subscription_type
+(
+    name varchar primary key,
+    monthly_pay_rub int
+);
+
+create table if not exists user_subscription(
+    id uuid primary key,
+    subscription_name varchar,
+    user_id uuid,
+    expiration_date timestamp
+)
