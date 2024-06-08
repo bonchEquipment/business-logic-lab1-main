@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- users.xml --><users>
+    <user>
+        <username>advanced_user_1</username>
+        <password>$2a$10$X2rvJ8A6nxXclAfswUnTRuSWki9/G5KphMw/3gELaG5fDbL1B0dUu</password>
+        <role>ADMIN</role>
+    </user>
+    <user>
+        <username>advanced_user_2</username>
+        <password>$2a$10$X2rvJ8A6nxXclAfswUnTRuSWki9/G5KphMw/3gELaG5fDbL1B0dUu</password>
+        <role>USER</role>
+    </user>
+    <user>
+        <username>advanced_user_3</username>
+        <password>$2a$10$X2rvJ8A6nxXclAfswUnTRuSWki9/G5KphMw/3gELaG5fDbL1B0dUu</password>
+        <role>USER</role>
+    </user>
+    <user>
+        <username>honest_admin</username>
+        <password>$2a$10$X2rvJ8A6nxXclAfswUnTRuSWki9/G5KphMw/3gELaG5fDbL1B0dUu</password>
+        <role>ADMIN</role>
+    </user>
+    <user>
+        <username>giga_chad_super_admin</username>
+        <password>$2a$10$X2rvJ8A6nxXclAfswUnTRuSWki9/G5KphMw/3gELaG5fDbL1B0dUu</password>
+        <role>SUPER_ADMIN</role>
+    </user>
+</users>

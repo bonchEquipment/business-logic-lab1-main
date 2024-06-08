@@ -16,7 +16,7 @@ create table if not exists likee
 create table if not exists userr
 (
     id        uuid primary key,
-    nick_name varchar,
+    nick_name varchar unique,
     role      varchar
 );
 

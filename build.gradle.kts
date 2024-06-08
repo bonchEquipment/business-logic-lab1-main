@@ -42,6 +42,14 @@ dependencies {
 
     // Bitronix JTA implementation
     implementation ("org.codehaus.btm:btm:2.1.4")
+    //implementation("org.springframework.boot:spring-boot-starter-jta-bitronix:2.1.4")
+
+
+    //security
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
+    //implementation("org.springframework.boot:spring-boot-starter-xml")
+    implementation("org.springframework.boot:spring-boot-starter:3.3.0")
 
 
     //database
@@ -52,7 +60,7 @@ dependencies {
 
     //lombok
     implementation("org.projectlombok:lombok:${lombokVersion}")
-    //implementation("org.springframework.boot:spring-boot-starter-security")
+
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 

@@ -3,6 +3,7 @@ package ru.buisnesslogiclab1.controller;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,7 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.buisnesslogiclab1.config.HeaderConstant;
 import ru.buisnesslogiclab1.dto.Response;
 import ru.buisnesslogiclab1.dto.StatusCode;
-import ru.buisnesslogiclab1.service.PartnershipService;
+import ru.buisnesslogiclab1.repository.UserRepository;
+import ru.buisnesslogiclab1.security.XMLUserManager;
+import ru.buisnesslogiclab1.service.SuperAdminService;
+import ru.buisnesslogiclab1.service.TopUpBalanceService;
 import ru.buisnesslogiclab1.service.UserService;
 import ru.buisnesslogiclab1.util.ResponseHelper;
 import ru.buisnesslogiclab1.validation.IdValidator;
@@ -24,32 +28,36 @@ import ru.buisnesslogiclab1.validation.user.ValidUserId;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/partnership")
-public class PartnershipController {
+@RequestMapping("/superAdmin")
+public class SuperAdminController {
 
 
-    private final PartnershipService service;
+    private final SuperAdminService service;
     private final ResponseHelper responseHelper;
     private final IdValidator idValidator;
+    private final UserRepository repository;
     private final UserService userService;
 
 
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    @PostMapping("/withdrawMoney")
-    public ResponseEntity<Response<StatusCode>> withdrawMoney(
-            @RequestHeader(value = HeaderConstant.AMOUNT, required = true)
-            Integer amount) {
-        var user = userService.findUserEntityForCurrentSession();
-        if (user == null)
-            return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_USER);
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @SneakyThrows
+    @PostMapping("/appointNewAdmin")
+    public ResponseEntity<Response<StatusCode>> appointNewAdmin(
+            @RequestHeader(value = HeaderConstant.USER_ID, required = true)
+            @ValidUserId
+            String userId) {
+        if (!idValidator.isIdExisting(null, userId))
+            return responseHelper.asResponseEntity(idValidator.createErrorStatus(null, userId));
 
+        var userIdUUID = UUID.fromString(userId);
         try {
-           service.withdrawSubscriptionMoney(BigDecimal.valueOf(amount), user.getId());
+            service.appointNewAdmin(userIdUUID);
             return responseHelper.asResponseEntity(StatusCode.OK);
-        }  catch (Exception e){
+        } catch (Exception e) {
             log.info(e.getMessage(), e);
             return responseHelper.asResponseEntity(StatusCode.createRequestFailedCode(e.getMessage()));
         }
     }
+
 
 }

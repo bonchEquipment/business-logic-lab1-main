@@ -17,19 +17,7 @@ public class PartnershipService {
     private final AccountService accountService;
 
     @Transactional(rollbackFor = Exception.class)
-    public OperationStatusDto withdrawSubscriptionMoney(BigDecimal amount, UUID userId) {
-        try {
-            withdrawSubscriptionMoneyWrapper(amount, userId);
-            return new OperationStatusDto(true, null);
-        } catch (Exception e) {
-            log.warn(e.getMessage(), e);
-            return new OperationStatusDto(false, e.getMessage());
-        }
-    }
-
-
-    @Transactional(rollbackFor = Exception.class)
-    public void withdrawSubscriptionMoneyWrapper(BigDecimal amount, UUID userId) throws Exception {
+    public void withdrawSubscriptionMoney(BigDecimal amount, UUID userId) throws Exception {
         var operationStatus = accountService.withdrawMoneyFromAccount(amount, userId, AccountType.RUTUBE);
         if (!operationStatus.isOperationSucceed())
             throw new Exception(operationStatus.getInfo());

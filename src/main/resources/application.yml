@@ -3,17 +3,18 @@ logging:
     root: INFO
 
 server:
-  port: 4003
+  port: 8135
 
 spring:
+  jta:
+    enabled: true
   application:
     name: db-project
   datasource:
     url: jdbc:postgresql://localhost:5432/studs
     username: s308414
-    password: bZfGXChzy7DemZrE
-    driver-class-name: org.postgresql.Driver
+    password: pass
   flyway:
     url: jdbc:postgresql://localhost:5432/studs
     user: s308414
-    password: bZfGXChzy7DemZrE
+    password: pass

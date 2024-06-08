@@ -27,7 +27,7 @@ public class AccountService {
         if (accountType.equals(RUTUBE))
             return changeRutubeBalanceBy(amount, userId);
 
-        return null;
+        return changeBankBalanceBy(amount, userId);
     }
 
     public OperationStatusDto withdrawMoneyFromAccount(BigDecimal amount, UUID userId, AccountType accountType) {
@@ -36,11 +36,11 @@ public class AccountService {
         if (accountType.equals(RUTUBE))
             return changeRutubeBalanceBy(amount.negate(), userId);
 
-        return null;
+        return changeBankBalanceBy(amount.negate(), userId);
     }
 
 
-    private OperationStatusDto changeBankBalanceBy(BigDecimal amount, UUID userId, AccountType accountType) {
+    private OperationStatusDto changeBankBalanceBy(BigDecimal amount, UUID userId) {
         var accountOptional = bankAccountRepository.findByUserId(userId);
         if (accountOptional.isEmpty())
             return createFailedResponse("there is no account with user_id " + userId);
@@ -53,7 +53,10 @@ public class AccountService {
 
 
         try {
-            bankAccountRepository.addMoneyToAccount(amount, userId);
+            var bankAccount = bankAccountRepository.findByUserId(userId).get();
+            bankAccount.setValue(bankAccount.getValue().add(amount));
+            bankAccountRepository.save(bankAccount);
+            log.info("log after saving bankAccount {}", bankAccount);
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
             return createFailedResponse("exception during attempt to add or withdraw money " +
@@ -78,7 +81,11 @@ public class AccountService {
 
 
         try {
-            rutubeAccountRepository.addMoneyToAccount(amount, userId);
+            var rutubeAccount = rutubeAccountRepository.findByUserId(userId).get();
+            rutubeAccount.setValue(rutubeAccount.getValue().add(amount));
+            rutubeAccountRepository.save(rutubeAccount);
+            log.info("log after saving rututbeAccount {}", rutubeAccount);
+            //threadSleep(10);
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
             return createFailedResponse("exception during attempt to add or withdraw money " +
@@ -86,6 +93,16 @@ public class AccountService {
         }
 
         return new OperationStatusDto(true, null);
+    }
+
+
+    private void threadSleep(int seconds){
+        log.info("trying to sleep for {} seconds", seconds);
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            log.error("unable to sleep ", e);
+        }
     }
 
 

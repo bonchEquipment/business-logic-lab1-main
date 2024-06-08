@@ -1,7 +1,11 @@
 package ru.buisnesslogiclab1.controller;
 
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ConstraintViolation;
@@ -9,7 +13,9 @@ import javax.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.buisnesslogiclab1.dto.StatusCode;
+import ru.buisnesslogiclab1.service.UserService;
 import ru.buisnesslogiclab1.util.ResponseHelper;
 
 
@@ -29,6 +36,7 @@ import ru.buisnesslogiclab1.util.ResponseHelper;
 public class ResponseControllerAdvice {
 
     private final ResponseHelper responseHelper;
+    private final UserService userService;
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<?> handle(ConstraintViolationException ex) {
@@ -36,6 +44,41 @@ public class ResponseControllerAdvice {
         log.error(message, ex);
 
         return responseHelper.asResponseEntity(StatusCode.createConstraintViolationCode(message));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handle(AccessDeniedException ex) {
+        log.error("access denied");
+
+        return responseHelper.asResponseEntity(StatusCode.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UnrecognizedPropertyException.class)
+    public ResponseEntity<?> handleUnrecognizedPropertyException(UnrecognizedPropertyException ex) {
+        String errorMessage = "Request have unknown params";
+        log.error(errorMessage);
+        return responseHelper.asResponseEntity(StatusCode.createRequestFailedCode(errorMessage));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<?> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String errorMessage = "Service general MethodArgumentTypeMismatchException thrown";
+        log.error(errorMessage);
+        return responseHelper.asResponseEntity(StatusCode.createRequestFailedCode(errorMessage));
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<?> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
+        String errorMessage = "Service general MissingRequestHeaderException thrown";
+        log.error(errorMessage);
+        return responseHelper.asResponseEntity(StatusCode.createRequestFailedCode(errorMessage));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<?> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        String errorMessage = "Service general MissingServletRequestParameterException thrown";
+
+        return responseHelper.asResponseEntity(StatusCode.createRequestFailedCode(errorMessage));
     }
 
     @ExceptionHandler(Exception.class)
@@ -46,20 +89,19 @@ public class ResponseControllerAdvice {
     }
 
 
-    private String listToString(Set<ConstraintViolation<?>> set){
+    private String listToString(Set<ConstraintViolation<?>> set) {
         if (set.size() == 1)
-            return set.stream().toList().get(0).getMessageTemplate();
+            return new ArrayList<>(set).get(0).getMessageTemplate();
 
-        if (set.size() > 1){
+        if (set.size() > 1) {
             var stringBuilder = new StringBuilder();
-            for (var violation: set.stream().toList())
-                stringBuilder.append(violation.getMessageTemplate() + "; ");
+            for (var violation : new ArrayList<>(set))
+                stringBuilder.append(violation.getMessageTemplate()).append("; ");
             return stringBuilder.toString();
         }
 
         return "Some constraint violation happened";
     }
-
 
 
 }

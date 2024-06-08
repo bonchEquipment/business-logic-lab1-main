@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +28,7 @@ import ru.buisnesslogiclab1.entity.VideoIdSubscriberIdPair;
 import ru.buisnesslogiclab1.repository.CommentRepository;
 import ru.buisnesslogiclab1.repository.LikeRepository;
 import ru.buisnesslogiclab1.repository.VideoRepository;
+import ru.buisnesslogiclab1.service.UserService;
 import ru.buisnesslogiclab1.util.ResponseHelper;
 import ru.buisnesslogiclab1.validation.IdValidator;
 import ru.buisnesslogiclab1.validation.subscriber.ValidSubscriberId;
@@ -43,7 +45,9 @@ public class SubscriberController {
     private final VideoRepository videoRepository;
     private final ResponseHelper responseHelper;
     private final IdValidator idValidator;
+    private final UserService userService;
 
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     @GetMapping("/video/{id}")
     public ResponseEntity<ByteArrayResource> getVideo(@PathVariable @ValidVideoId String id) {
         if (!idValidator.isIdExisting(id, null))
@@ -63,6 +67,7 @@ public class SubscriberController {
                 .body(new ByteArrayResource(videoContent));
     }
 
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     @GetMapping("/video/getComments")
     public ResponseEntity<Response<List<CommentEntity>>> getComments(
             @RequestHeader(value = HeaderConstant.VIDEO_ID, required = true)
@@ -78,63 +83,69 @@ public class SubscriberController {
     }
 
 
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     @PostMapping("/addLike")
     public ResponseEntity<Response<Void>> addLike(
             @RequestHeader(value = HeaderConstant.VIDEO_ID, required = true)
             @ValidVideoId
-            String videoId,
-            @ValidSubscriberId
-            @RequestHeader(value = HeaderConstant.SUBSCRIBER_ID, required = true)
-            String subscriberId) {
+            String videoId) {
+        var user = userService.findUserEntityForCurrentSession();
+        if (user == null)
+            return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_USER);
+
         if (!idValidator.isIdExisting(videoId, null))
-            return responseHelper.asResponseEntity(idValidator.createErrorStatus(videoId, subscriberId));
+            return responseHelper.asResponseEntity(idValidator.createErrorStatus(videoId, null));
 
         if (!videoRepository.existsById(UUID.fromString(videoId)))
             return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_VIDEO);
 
-        likeRepository.save(new LikeEntity(UUID.fromString(subscriberId), UUID.fromString(videoId)));
+        likeRepository.save(new LikeEntity(user.getId(), UUID.fromString(videoId)));
 
         return responseHelper.asResponseEntity(StatusCode.OK);
     }
 
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     @PostMapping("/revokeLike")
     public ResponseEntity<Response<Void>> revokeLike(
             @RequestHeader(value = HeaderConstant.VIDEO_ID, required = true)
             @ValidVideoId
-            String videoId,
-            @RequestHeader(value = HeaderConstant.SUBSCRIBER_ID, required = true)
-            @ValidSubscriberId
-            String subscriberId) {
+            String videoId) {
+        var user = userService.findUserEntityForCurrentSession();
+        if (user == null)
+            return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_USER);
+
         if (!idValidator.isIdExisting(videoId, null))
-            return responseHelper.asResponseEntity(idValidator.createErrorStatus(videoId, subscriberId));
+            return responseHelper.asResponseEntity(idValidator.createErrorStatus(videoId, null));
 
         if (!videoRepository.existsById(UUID.fromString(videoId)))
             return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_VIDEO);
 
-        var id = new VideoIdSubscriberIdPair(UUID.fromString(subscriberId), UUID.fromString(videoId));
+        var id = new VideoIdSubscriberIdPair(user.getId(), UUID.fromString(videoId));
         if (likeRepository.existsById(id))
             likeRepository.deleteById(id);
 
         return responseHelper.asResponseEntity(StatusCode.OK);
     }
 
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     @PostMapping("/addComment")
     public ResponseEntity<Response<Void>> addComment(
             @RequestHeader(value = HeaderConstant.VIDEO_ID, required = true)
             @ValidVideoId
             String videoId,
-            @RequestHeader(value = HeaderConstant.SUBSCRIBER_ID, required = true)
-            @ValidSubscriberId
-            String subscriberId,
             @RequestBody
             TextDto textDto) {
-        if (!idValidator.isIdExisting(videoId, subscriberId))
+        var user = userService.findUserEntityForCurrentSession();
+        if (user == null)
+            return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_USER);
+
+        if (!idValidator.isIdExisting(videoId, null))
             return responseHelper.asResponseEntity(idValidator.createErrorStatus(videoId, null));
 
         if (!videoRepository.existsById(UUID.fromString(videoId)))
             return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_VIDEO);
 
-        commentRepository.save(new CommentEntity(UUID.fromString(subscriberId), UUID.fromString(videoId), textDto.getText()));
+        commentRepository.save(new CommentEntity(user.getId(), UUID.fromString(videoId), textDto.getText()));
 
         return responseHelper.asResponseEntity(StatusCode.OK);
     }
