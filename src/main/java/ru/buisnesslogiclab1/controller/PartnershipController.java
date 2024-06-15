@@ -1,7 +1,6 @@
 package ru.buisnesslogiclab1.controller;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import ru.buisnesslogiclab1.service.PartnershipService;
 import ru.buisnesslogiclab1.service.UserService;
 import ru.buisnesslogiclab1.util.ResponseHelper;
 import ru.buisnesslogiclab1.validation.IdValidator;
-import ru.buisnesslogiclab1.validation.user.ValidUserId;
 
 @Validated
 @Slf4j
@@ -38,18 +36,12 @@ public class PartnershipController {
     @PostMapping("/withdrawMoney")
     public ResponseEntity<Response<StatusCode>> withdrawMoney(
             @RequestHeader(value = HeaderConstant.AMOUNT, required = true)
-            Integer amount) {
+            Integer amount) throws Exception {
         var user = userService.findUserEntityForCurrentSession();
         if (user == null)
             return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_USER);
 
-        try {
-           service.withdrawSubscriptionMoney(BigDecimal.valueOf(amount), user.getId());
-            return responseHelper.asResponseEntity(StatusCode.OK);
-        }  catch (Exception e){
-            log.info(e.getMessage(), e);
-            return responseHelper.asResponseEntity(StatusCode.createRequestFailedCode(e.getMessage()));
-        }
+        return service.withdrawMoney(BigDecimal.valueOf(amount), user.getId());
     }
 
 }

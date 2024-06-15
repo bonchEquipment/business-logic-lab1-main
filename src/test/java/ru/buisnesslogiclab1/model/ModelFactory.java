@@ -27,7 +27,6 @@ public class ModelFactory {
         return VideoEntity.builder()
                 .id(UUID.randomUUID())
                 .approvedBy(null)
-                .availableMode(AvailableMode.TO_ALL_USERS)
                 .description("Crush course for JUnit5 framework")
                 .title("JUnit5 crush course")
                 .link("Cv72I")

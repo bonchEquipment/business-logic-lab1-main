@@ -13,11 +13,12 @@ create table if not exists likee
     primary key (video_id, subscriber_id)
 );
 
-create table if not exists userr
+create table if not exists users
 (
     id        uuid primary key,
-    nick_name varchar unique,
-    role      varchar
+    nick_name varchar unique not null,
+    role      varchar,
+    email     varchar not null
 );
 
 create table if not exists video_approval

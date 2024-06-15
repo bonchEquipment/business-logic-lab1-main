@@ -15,6 +15,7 @@ import ru.buisnesslogiclab1.config.HeaderConstant;
 import ru.buisnesslogiclab1.dto.AccountType;
 import ru.buisnesslogiclab1.dto.Response;
 import ru.buisnesslogiclab1.dto.StatusCode;
+import ru.buisnesslogiclab1.feign.PaymentServiceFeign;
 import ru.buisnesslogiclab1.service.AccountService;
 import ru.buisnesslogiclab1.service.TopUpBalanceService;
 import ru.buisnesslogiclab1.service.UserService;
@@ -32,25 +33,20 @@ public class TopUpBalanceController {
     private final TopUpBalanceService service;
     private final AccountService accountService;
     private final ResponseHelper responseHelper;
-    private final IdValidator idValidator;
+    private final PaymentServiceFeign feignClient;
     private final UserService userService;
 
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     @PostMapping("/fromBankToRutube")
     public ResponseEntity<Response<StatusCode>> topUpBalanceFromBankToRutube(
             @RequestHeader(value = HeaderConstant.AMOUNT, required = true)
-            Integer amount) {
+            Integer amount) throws Exception {
         var user = userService.findUserEntityForCurrentSession();
         if (user == null)
             return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_USER);
 
-        try {
-            service.topUpBalance(BigDecimal.valueOf(amount), user.getId());
-            return responseHelper.asResponseEntity(StatusCode.OK);
-        } catch (Exception e){
-            log.info(e.toString(), e);
-            return responseHelper.asResponseEntity(StatusCode.createRequestFailedCode(e.getMessage()));
-        }
+        return service.topUpBalance(BigDecimal.valueOf(amount), user.getId());
+
     }
 
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
@@ -62,13 +58,7 @@ public class TopUpBalanceController {
         if (user == null)
             return responseHelper.asResponseEntity(StatusCode.THERE_IS_NO_SUCH_USER);
 
-        var operationStatusDto = accountService.addMoneyToAccount(
-                new BigDecimal(amount), user.getId(), AccountType.BANK);
-
-        if (operationStatusDto.isOperationSucceed())
-            return responseHelper.asResponseEntity(StatusCode.OK);
-
-        return responseHelper.asResponseEntity(StatusCode.createRequestFailedCode(operationStatusDto.getInfo()));
+        return feignClient.addMoneyToBankAccountFromAir(new BigDecimal(amount), user.getId());
     }
 
 }

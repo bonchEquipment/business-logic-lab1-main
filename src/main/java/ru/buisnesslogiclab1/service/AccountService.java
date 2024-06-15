@@ -85,7 +85,6 @@ public class AccountService {
             rutubeAccount.setValue(rutubeAccount.getValue().add(amount));
             rutubeAccountRepository.save(rutubeAccount);
             log.info("log after saving rututbeAccount {}", rutubeAccount);
-            //threadSleep(10);
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
             return createFailedResponse("exception during attempt to add or withdraw money " +
@@ -95,15 +94,6 @@ public class AccountService {
         return new OperationStatusDto(true, null);
     }
 
-
-    private void threadSleep(int seconds){
-        log.info("trying to sleep for {} seconds", seconds);
-        try {
-            Thread.sleep(seconds * 1000);
-        } catch (InterruptedException e) {
-            log.error("unable to sleep ", e);
-        }
-    }
 
 
     private OperationStatusDto createFailedResponse(String info) {

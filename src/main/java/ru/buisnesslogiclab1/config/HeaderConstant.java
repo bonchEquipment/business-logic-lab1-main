@@ -13,5 +13,7 @@ public class HeaderConstant {
     public static final String SUBSCRIPTION_NAME = "SUBSCRIPTION_NAME";
     public static final String AMOUNT = "AMOUNT";
 
+    public static final String ACCOUNT_TYPE = "ACCOUNT_TYPE";
+
 
 }

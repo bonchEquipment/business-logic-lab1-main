@@ -16,7 +16,7 @@ import ru.buisnesslogiclab1.dto.Role;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "userr")
+@Entity(name = "users")
 public class UserEntity {
 
     @Id
@@ -29,5 +29,8 @@ public class UserEntity {
     @Enumerated(value = EnumType.STRING)
     @Column(name = "role")
     private Role role;
+
+    @Column(name = "email")
+    private String email;
 
 }

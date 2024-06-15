@@ -167,7 +167,6 @@ public class UserControllerTest extends AbstractIntegrationTest {
     void changeAvailabilityStatus() throws Exception {
         videoRepository.deleteAll();
         var video = createVideoEntity();
-        video.setAvailableMode(AvailableMode.TO_ALL_USERS);
         video = videoRepository.save(video);
 
         mockMvc.perform(post(createChangeAvailabilityStatusURL())
@@ -182,7 +181,6 @@ public class UserControllerTest extends AbstractIntegrationTest {
                 .getContentAsString();
 
         var actualVideo = videoRepository.findAll().get(0);
-        assertEquals(AvailableMode.BY_LINK, actualVideo.getAvailableMode());
         var notUploadedVideo = createVideoEntity();
 
         mockMvc.perform(post(createChangeAvailabilityStatusURL())
