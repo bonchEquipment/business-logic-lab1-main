@@ -1,0 +1,24 @@
+server.port: 8135
+
+payment:
+  host-port: http://localhost:3333
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+  jta:
+    enabled: true
+  application:
+    name: db-project
+  datasource:
+    url: jdbc:postgresql://localhost:5432/itmo
+    username: postgres
+    password: postgres
+  flyway:
+    url: jdbc:postgresql://localhost:5432/itmo
+    user: postgres
+    password: postgres
+
+
+cron-expressions:
+  notify-about-subscription-expiration: '0 */1 * * * *'

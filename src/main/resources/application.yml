@@ -1,23 +1,26 @@
 server.port: 8135
 
 payment:
-  host-port: http://localhost:3333
+  host-port: ${PAYMENT_HOST_PORT}
 
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   jta:
     enabled: true
   application:
     name: db-project
   datasource:
-    url: jdbc:postgresql://localhost:5432/itmo
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
   flyway:
-    url: jdbc:postgresql://localhost:5432/itmo
-    user: postgres
-    password: postgres
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
 
 cron-expressions:
