@@ -15,7 +15,9 @@ public class MailService {
     private final KafkaProducerService kafkaProducerService;
 
     public void sendEmail(SendEmailDto dto){
-        kafkaProducerService.sendMessage("send-email", ObjectParser.parse(dto));
+        var stringifiedDto =  ObjectParser.parse(dto);
+        log.info("sending send email message to kafka {}", stringifiedDto);
+        kafkaProducerService.sendMessage("send-email", stringifiedDto);
     }
 
 }
